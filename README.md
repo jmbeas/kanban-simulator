@@ -8,6 +8,8 @@ The proof of concept shows how to:
 - use SimPy to run a simulation
 - use Tornado's websockets to broadcast the events coming from the simulation
 
+### Next steps
+
 Next steps should be:
 
 - separate concerns
