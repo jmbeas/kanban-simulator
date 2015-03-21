@@ -9,15 +9,17 @@
 
     ws = new WebSocket("ws://" + host + ":" + port + uri);
     ws.onopen = function(event) {
-      $("#container").css("background", "#00ff00");
+      $("#connection").css("color", "#00ff00");
+      $("#connection").removeClass("glyphicon-ban-circle").addClass("glyphicon-ok-circle");
+    };
+    ws.onclose = function() {
+      $("#connection").css("color", "#ff0000");
+      $("#connection").removeClass("glyphicon-ok-circle").addClass("glyphicon-ban-circle");
     };
     ws.onmessage = function(event) {
       var msg = JSON.parse(event.data);
       $("<li/>").text(msg.text).appendTo("#container");
       return false;
-    };
-    ws.onclose = function() {
-      $("#container").css("background", "#ff0000");
     };
 
     });
