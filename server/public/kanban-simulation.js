@@ -18,7 +18,13 @@
     };
     ws.onmessage = function(event) {
       var msg = JSON.parse(event.data);
-      $("<li/>").text(msg.text).appendTo("#container");
+      // El texto del mensaje está en msg.text
+      var li = $("<li class='timeline-inverted'/>");
+      li.append("<div class='timeline-badge'><i class='fa fa-car'></i></div>");
+      var title = $("<h4>").addClass("timeline-title").text(msg.text);
+      var message = $("<div class='timeline-panel'><div class='timeline-heading'>");
+      message.append(title).appendTo(li);
+      li.appendTo("#container");
       return false;
     };
 
