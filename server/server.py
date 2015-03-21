@@ -2,60 +2,50 @@ from tornado import websocket, web, ioloop
 import time, datetime
 import threading
 import simpy
-
-cl = []
-
-def inform(msg):
-    print msg
-    for c in cl:
-        c.write_message(msg)
-
+from car import Car
 
 class IndexHandler(web.RequestHandler):
     def get(self):
         self.render("index.html")
 
 class WebsocketHandler(websocket.WebSocketHandler):
+
+    def broadcaster(self):
+        return event_broadcaster
+
     def open(self):
         print 'new connection'
         msg = {'text':'Starting simulation'}
-        if self not in cl:
-             cl.append(self)
+        self.broadcaster().open(self)
         self.write_message(msg)
         env.run(until=15)
 
     def on_close(self):
         print 'connection closed'
-        if self in cl:
-            cl.remove(self)
+        self.broadcaster().close(self)
         simulator.stop()
 
     def check_origin(self, origin):
         return True
 
+class EventBroadcaster(object):
 
-class Car(object):
+    def __init__(self):
+        self.cl = []
 
-    def __init__(self,env):
-        print "Creating a new car"
-        self.env = env
-        self.action = env.process(self.run())
+    def open(self,c):
+        if c not in self.cl:
+             self.cl.append(c)
 
-    def run(self):
-        while True:
-            inform({'text':'Start parking and charging at %d' % self.env.now})
-            charge_duration = 5
-            try:
-                yield self.env.process(self.charge(charge_duration))
-            except simpy.Interrupt:
-                inform({'text':'Was interrupted. Hope, the battery is full enough ...'})
+    def close(self,c):
+        if c in self.cl:
+            self.cl.remove(c)
 
-            inform({'text':'Start driving at %d' % self.env.now})
-            trip_duration = 2
-            yield self.env.timeout(trip_duration)
+    def inform(self,msg):
+        print msg
+        for c in self.cl:
+            c.write_message(msg)
 
-    def charge(self,duration):
-        yield self.env.timeout(duration)
 
 
 def driver(env, car):
@@ -63,7 +53,8 @@ def driver(env, car):
     car.action.interrupt()
 
 env = simpy.Environment()
-car = Car(env)
+event_broadcaster = EventBroadcaster()
+car = Car(env,event_broadcaster)
 env.process(driver(env,car))
 
 app = web.Application([
