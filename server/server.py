@@ -1,8 +1,6 @@
 from tornado import websocket, web, ioloop
-import time, datetime
 import threading
-import simpy
-from car import Car
+from simulator import SimulatorEngine
 
 class IndexHandler(web.RequestHandler):
     def get(self):
@@ -13,17 +11,20 @@ class WebsocketHandler(websocket.WebSocketHandler):
     def broadcaster(self):
         return event_broadcaster
 
+    def simulator(self):
+        return simulator
+
     def open(self):
         print 'new connection'
         msg = {'text':'Starting simulation'}
         self.broadcaster().open(self)
+        self.simulator().start()
         self.write_message(msg)
-        env.run(until=15)
 
     def on_close(self):
         print 'connection closed'
         self.broadcaster().close(self)
-        simulator.stop()
+        self.simulator().stop()
 
     def check_origin(self, origin):
         return True
@@ -47,15 +48,9 @@ class EventBroadcaster(object):
             c.write_message(msg)
 
 
-
-def driver(env, car):
-    yield env.timeout(3)
-    car.action.interrupt()
-
-env = simpy.Environment()
 event_broadcaster = EventBroadcaster()
-car = Car(env,event_broadcaster)
-env.process(driver(env,car))
+simulator = SimulatorEngine()
+simulator.prepare(event_broadcaster)
 
 app = web.Application([
     (r'/', IndexHandler),
