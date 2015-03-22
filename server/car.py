@@ -21,3 +21,7 @@ class Car(Process):
 
     def charge(self,duration):
         yield self.env.timeout(duration)
+
+    def driver(self, env):
+        yield env.timeout(3)
+        self.action.interrupt()
