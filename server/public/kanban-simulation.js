@@ -35,38 +35,60 @@ var format_message_for_the_timeline = function($,msg) {
   return li;
 };
 
+var init_websocket = function() {
+
+  var ws;
+  var host = 'localhost';
+  var port = '8888';
+  var uri = '/ws';
+
+  ws = new WebSocket("ws://" + host + ":" + port + uri);
+  ws.onopen = function(event) {
+    $("#connection").css("color", "#00ff00");
+    $("#connection").removeClass("glyphicon-ban-circle").addClass("glyphicon-ok-circle");
+    var msg = {'text':'Connection open','type':'open'};
+    var li = format_message_for_the_timeline($,msg);
+    li.appendTo("#container");
+  };
+  ws.onclose = function() {
+    $("#connection").css("color", "#ff0000");
+    $("#connection").removeClass("glyphicon-ok-circle").addClass("glyphicon-ban-circle");
+    var msg = {'text':'Connection closed','type':'close'};
+    var li = format_message_for_the_timeline($,msg);
+    li.appendTo("#container");
+  };
+  ws.onmessage = function(event) {
+    var msg = JSON.parse(event.data);
+    var li = format_message_for_the_timeline($,msg);
+    li.appendTo("#container");
+    return false;
+  };
+  return ws;
+};
+
+var start_simulation = function(ws) {
+  ws.send('start');
+};
+
+var stop_simulation = function(ws) {
+  ws.send('stop');
+};
+
 (function (document, $, storage) { // let's pull all of this into context of nice function
 
   $(document).ready(function() {
-
-    var ws;
-    var host = 'localhost';
-    var port = '8888';
-    var uri = '/ws';
-
-    ws = new WebSocket("ws://" + host + ":" + port + uri);
-    ws.onopen = function(event) {
-      $("#connection").css("color", "#00ff00");
-      $("#connection").removeClass("glyphicon-ban-circle").addClass("glyphicon-ok-circle");
-      var msg = {'text':'Connection open','type':'open'};
-      var li = format_message_for_the_timeline($,msg);
-      li.appendTo("#container");
-    };
-    ws.onclose = function() {
-      $("#connection").css("color", "#ff0000");
-      $("#connection").removeClass("glyphicon-ok-circle").addClass("glyphicon-ban-circle");
-      var msg = {'text':'Connection closed','type':'close'};
-      var li = format_message_for_the_timeline($,msg);
-      li.appendTo("#container");
-    };
-    ws.onmessage = function(event) {
-      var msg = JSON.parse(event.data);
-      var li = format_message_for_the_timeline($,msg);
-      li.appendTo("#container");
-      return false;
-    };
-
+    var ws = init_websocket();
+    $("#play_button.start").click(function() {
+      start_simulation(ws);
+      $(this).removeClass("start").addClass("stop");
+      $(this).find(".glyphicon").removeClass("glyphicon-play").addClass("glyphicon-stop");
     });
+    $("#play_button.stop").click(function() {
+      stop_simulation(ws);
+      $(this).removeClass("stop").addClass("start");
+      $(this).find(".glyphicon").removeClass("glyphicon-stop").addClass("glyphicon-start");
+    });
+  });
 
 
 })(document, jQuery, localStorage);
