@@ -10,10 +10,10 @@ class SimulatorEngine(object):
         self.env.process(self.driver(self.env,car))
 
     def start(self):
-        self.env.run(until=15)
+        self.env.run(until=20)
 
     def stop(self):
-        pass
+        self.env.exit()
 
     def driver(self, env, car):
         yield env.timeout(3)

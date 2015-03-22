@@ -25,7 +25,7 @@ class WebsocketHandler(websocket.WebSocketHandler):
         if message == 'start':
             self.simulator().start()
         elif message == 'stop':
-            self.simulator.stop()
+            self.simulator().stop()
 
     def on_close(self):
         print 'connection closed'
