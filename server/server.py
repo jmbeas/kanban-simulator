@@ -18,8 +18,8 @@ class WebsocketHandler(websocket.WebSocketHandler):
         print 'new connection'
         msg = {'text':'Starting simulation'}
         self.broadcaster().open(self)
-        self.simulator().start()
         self.write_message(msg)
+        self.simulator().start()
 
     def on_close(self):
         print 'connection closed'
