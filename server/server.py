@@ -55,8 +55,8 @@ class EventBroadcaster(object):
 
 
 event_broadcaster = EventBroadcaster()
-simulator = SimulatorEngine()
-simulator.prepare(event_broadcaster)
+simulator = SimulatorEngine(event_broadcaster)
+simulator.prepare()
 
 app = web.Application([
     (r'/', IndexHandler),
