@@ -21,6 +21,7 @@ class WebsocketHandler(websocket.WebSocketHandler):
         self.write_message(msg)
 
     def on_message(self,message):
+        print 'message received = '+message
         if message == 'start':
             self.simulator().start()
         elif message == 'stop':

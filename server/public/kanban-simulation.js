@@ -78,15 +78,18 @@ var stop_simulation = function(ws) {
 
   $(document).ready(function() {
     var ws = init_websocket();
-    $("#play_button.start").click(function() {
-      start_simulation(ws);
-      $(this).removeClass("start").addClass("stop");
-      $(this).find(".glyphicon").removeClass("glyphicon-play").addClass("glyphicon-stop");
-    });
-    $("#play_button.stop").click(function() {
-      stop_simulation(ws);
-      $(this).removeClass("stop").addClass("start");
-      $(this).find(".glyphicon").removeClass("glyphicon-stop").addClass("glyphicon-start");
+    $("#play_button").click(function() {
+      if ( $(this).hasClass("start") ) {
+        start_simulation(ws);
+        $(this).removeClass("start").addClass("stop");
+        $(this).removeClass("btn-primary").addClass("btn-warning");
+        $(this).find(".glyphicon").removeClass("glyphicon-play").addClass("glyphicon-stop");
+      } else {
+        stop_simulation(ws);
+        $(this).removeClass("stop").addClass("start");
+        $(this).removeClass("btn-warning").addClass("btn-primary");
+        $(this).find(".glyphicon").removeClass("glyphicon-stop").addClass("glyphicon-play");
+      }
     });
   });
 
